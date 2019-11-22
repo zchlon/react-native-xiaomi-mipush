@@ -1,0 +1,25 @@
+{
+  "name": "react-native-xiaomi-mipush",
+  "title": "React Native Xiaomi Push",
+  "version": "1.0.1beta1",
+  "description": "react native for XiaoMi push",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zchlon/react-native-xiaomi-mipush.git",
+    "baseUrl": "https://github.com/zchlon/react-native-xiaomi-mipush"
+  },
+  "keywords": [
+    "react-native",
+    "xiaomi-push",
+    "xiaomi",
+    "push"
+  ],
+  "author": {
+    "name": "zchlon",
+    "email": "zchlon0824@gmail.com"
+  },
+  "license": "MIT",
+  "licenseFilename": "LICENSE",
+  "readmeFilename": "README.md"
+}
