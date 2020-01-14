@@ -1,5 +1,7 @@
 # react-native-xiaomi-mipush
 
+本插件库还在调整中，暂无法使用
+
 ## Getting started
 
 `$ npm install react-native-xiaomi-mipush --save`
