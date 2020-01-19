@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,14 +38,18 @@ public class ExampleUtil {
         Bundle metaData = null;
         String appId = null;
         try {
-            ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
-            if (null != ai) {
-                metaData = ai.metaData;
+            ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+            if (null != appInfo) {
+                metaData = appInfo.metaData;
             }
             if (null != metaData) {
                 appId = metaData.getString(KEY_APP_ID);
+                appId = appId.split("=")[1];
             }
-        } catch (PackageManager.NameNotFoundException e) {}
+            Log.i("MipushLog", "appId =" + appId);
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.i("Mipush", e.getMessage());
+        }
         return appId;
     }
 
@@ -59,7 +64,9 @@ public class ExampleUtil {
             }
             if (null != metaData) {
                 appKey = metaData.getString(KEY_APP_KEY);
+                appKey = appKey.split("=")[1];
             }
+            Log.i("MipushLog", "appKey =" + appKey);
         } catch (PackageManager.NameNotFoundException e) {}
         return appKey;
     }

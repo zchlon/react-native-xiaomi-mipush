@@ -1,24 +1,25 @@
 package com.zchlon.xiaomipush;
 
-import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.Callback;
-import com.facebook.react.bridge.LifecycleEventListener;
-import com.facebook.react.bridge.Promise;
-import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
-import com.facebook.react.bridge.ReactMethod;
-
+import android.app.ActivityManager;
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+
 import com.xiaomi.mipush.sdk.ErrorCode;
 import com.xiaomi.mipush.sdk.MiPushClient;
 import com.xiaomi.mipush.sdk.MiPushCommandMessage;
@@ -29,7 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-public class XiaomipushModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
+public class XiaomipushModule extends ReactContextBaseJavaModule {
 
     private static String TAG = "XiaomipushModule";
     private Context mContext;
@@ -45,7 +46,6 @@ public class XiaomipushModule extends ReactContextBaseJavaModule implements Life
 
     public XiaomipushModule(ReactApplicationContext reactContext) {
         super(reactContext);
-        mContext = reactContext;
     }
 
     @Override
@@ -59,17 +59,17 @@ public class XiaomipushModule extends ReactContextBaseJavaModule implements Life
      */
     @ReactMethod
     public void registerPush(Promise promise) {
+        mContext = getReactApplicationContext();
         if (shouldInit()) {
-            String appId = ExampleUtil.getAppId(mContext.getApplicationContext());
-            String appKey = ExampleUtil.getAppKey(mContext.getApplicationContext());
-
+            String appId = ExampleUtil.getAppId(mContext);
+            String appKey = ExampleUtil.getAppKey(mContext);
+            Log.i("TAG", "Sending event : " + mEvent);
             if (appId == null || appId.isEmpty() || appKey == null || appKey.isEmpty()) {
-                Log.i(TAG, "AppId or AppKey can't be null");
+                Log.i("TAG", "AppId or AppKey can't be null");
                 promise.resolve("AppId or AppKey can't be null");
                 return;
             }
-            MiPushClient.registerPush(mContext.getApplicationContext(), appId, appKey);
-            reactContext = getReactApplicationContext();
+            MiPushClient.registerPush(mContext, appId, appKey);
         }
     }
 
@@ -78,7 +78,7 @@ public class XiaomipushModule extends ReactContextBaseJavaModule implements Life
      */
     @ReactMethod
     public void unregisterPush(Promise promise) {
-        MiPushClient.unregisterPush(mContext.getApplicationContext());
+        MiPushClient.unregisterPush(mContext);
     }
 
     /**
@@ -86,12 +86,14 @@ public class XiaomipushModule extends ReactContextBaseJavaModule implements Life
      */
     @ReactMethod
     public void setAlias(String alias) {
-        Boolean valid = ExampleUtil.isValidTagAndAlias(alias);
+        Log.i("MiPush", "alias is " + alias);
+        MiPushClient.setAlias(mContext, alias, null);
+        /* Boolean valid = ExampleUtil.isValidTagAndAlias(alias);
         if (valid) {
-            MiPushClient.setAlias(mContext.getApplicationContext(), alias, null);
+            MiPushClient.setAlias(mContext, alias, null);
         } else {
-            Log.i(TAG, "alias is invalid");
-        }
+            Log.i("MiPush", "alias is invalid");
+        } */
     }
 
     /**
@@ -99,16 +101,16 @@ public class XiaomipushModule extends ReactContextBaseJavaModule implements Life
      */
     @ReactMethod
     public void unsetAlias(String alias) {
-        MiPushClient.unsetAlias(mContext.getApplicationContext(), alias, null);
+        MiPushClient.unsetAlias(mContext, alias, null);
     }
 
 
     private boolean shouldInit() {
-        ActivityManager am = ((ActivityManager) getSystemService(Context.ACTIVITY_SERVICE));
-        List<RunningAppProcessInfo> processInfos = am.getRunningAppProcesses();
-        String mainProcessName = getPackageName();
-        int myPid = Process.myPid();
-        for (RunningAppProcessInfo info : processInfos) {
+        ActivityManager am = ((ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE));
+        List<ActivityManager.RunningAppProcessInfo> processInfos = am.getRunningAppProcesses();
+        String mainProcessName = mContext.getPackageName();
+        int myPid = android.os.Process.myPid();
+        for (ActivityManager.RunningAppProcessInfo info : processInfos) {
             if (info.pid == myPid && mainProcessName.equals(info.processName)) {
                 return true;
             }
@@ -120,21 +122,6 @@ public class XiaomipushModule extends ReactContextBaseJavaModule implements Life
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                 .emit(mEvent, mParams);
         XiaomipushModule.mParams = null;
-    }
-
-    @Override
-    public void onHostResume() {
-        Log.d(TAG, "onHostResume");
-    }
-
-    @Override
-    public void onHostPause() {
-        Log.d(TAG, "onHostPause");
-    }
-
-    @Override
-    public void onHostDestroy() {
-        Log.d(TAG, "onHostDestroy");
     }
 
     public static class XiaomiPushReceiver extends PushMessageReceiver {
@@ -185,7 +172,7 @@ public class XiaomipushModule extends ReactContextBaseJavaModule implements Life
             } else if(!TextUtils.isEmpty(message.getUserAccount())) {
                 mUserAccount=message.getUserAccount();
             }
-
+            Log.i("MiPush", "mAlias: " + mAlias);
             XiaomipushModule.mEvent = RECEIVE_NOTIFICATION;
             XiaomipushModule.mParams = Arguments.createMap();
             XiaomipushModule.sendEvent();
@@ -244,5 +231,3 @@ public class XiaomipushModule extends ReactContextBaseJavaModule implements Life
         }
     }
 }
-
-
