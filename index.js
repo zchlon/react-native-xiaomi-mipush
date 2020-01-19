@@ -36,6 +36,18 @@ export default class XMPush {
 
   }
 
+
+  /**
+     * 获取RegId
+     */
+  static getRegId() {
+
+    if (Platform.OS === 'android') {
+      return XiaomiPush.getRegId();
+    }
+
+  }
+
   /**
      * 设置别名
      */

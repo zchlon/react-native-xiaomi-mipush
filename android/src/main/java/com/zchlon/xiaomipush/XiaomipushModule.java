@@ -82,6 +82,15 @@ public class XiaomipushModule extends ReactContextBaseJavaModule {
     }
 
     /**
+     *  获取RegId
+     */
+    @ReactMethod
+    public void getRegId(Promise promise) {
+        String RegId = MiPushClient.getRegId(mContext);
+        promise.resolve(RegId);
+    }
+
+    /**
      *  设置别名
      */
     @ReactMethod

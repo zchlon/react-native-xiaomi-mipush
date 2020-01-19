@@ -1,7 +1,7 @@
 {
   "name": "react-native-xiaomi-mipush",
   "title": "React Native Xiaomi Push",
-  "version": "1.0.1beta2",
+  "version": "1.0.1beta3",
   "description": "react native for XiaoMi push",
   "main": "index.js",
   "repository": {
